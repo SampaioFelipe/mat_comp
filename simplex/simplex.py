@@ -1,3 +1,6 @@
+import numpy as np
+import math
+
 '''
 1.Tabela inicial:  inserir variáveis de folga
 2.Solução é ótima? Há coeficiente negativo em Z?
@@ -10,53 +13,59 @@ Forma canonica
 max Z = Cx
 	s.r Ax <= b
 '''
+# Coeficientes da função objetivo separados por espaço
+funcao_objetivo = input("Coeficientes da função objetivo: ").split()
 
-import numpy as np
+n_variaveis = len(funcao_objetivo)
+n_restricoes = int(input('Quantidade restricoes: '))
 
-
-# Definir variaveis auxiliares
-variaveis = int(input('Digite a quantidade de variaveis: '))
-restricoes = int(input('Digite a quantidade de restricoes: '))
-
-linhas = restricoes + 1  # var de folga + Z
-colunas = variaveis + linhas + 1  # var + var de folga + Z + constante
+linhas = n_restricoes + 1  # var de folga + Z
+colunas = n_variaveis + linhas + 1  # var + var de folga + Z + constante
 
 # Criacao da tabela com zeros
 Tabela = np.zeros((linhas, colunas))
 Tabela[0][0] = 1  # coluna do Z
 
 # primeira linha da tabela
-for j in range(1, variaveis + 1):
-    Tabela[0][j] = (-1) * (int(input('Digite os coeficientes da funcao objetivo: \n')))
-print("Funcao objetivo preenchida com sucesso\n")
+for i in range(1, n_variaveis + 1):
+    Tabela[0][i] = (-1) * int(funcao_objetivo[i-1])
 
-# preencher coeficientes das restricoes
-def preenche_restricoes(i):
-    for j in range(1, variaveis + 1):
-        Tabela[i][j] = int(input('Digite os coeficientes da restricao: \n'))
+# Preenchimento do dicionário inicial
+i = 1
+while(i <= n_restricoes):
+    restricao = input('Digite os coeficientes + constante da restrição ' + str(i) + ': ').split()
 
-for i in range(1, linhas):
-    Tabela[i][variaveis + i] = 1  # variaveis de folga e constante
-    preenche_restricoes(i)
-    Tabela[i][colunas - 1] = int(input('Digite a constante: '))
-    print("Fim da restricao", i, '\n')
-print("Dicionario inicial finalizado\n")
+    # Se houver mais variáveis do que a funcao objetivo
+    if len(restricao) != n_variaveis + 1:
+        print("Número de variáveis incompatível. Tente novamente.")
+    else:
+        # Preenche os coeficientes da restrição
+        for j in range(1, n_variaveis + 1):
+            Tabela[i][j] = int(restricao[j-1])
+        
+        Tabela[i][n_variaveis + i] = 1  # variavel de folga
+        Tabela[i][-1] = int(restricao[-1]) # valor da constante
+
+        i = i + 1
+
+print("\nDicionário Inicial\n")
+print(Tabela)
 
 def busca_negativo():
-    for j in range(1, variaveis + 1):
+    for j in range(1, n_variaveis + 1):
         if(Tabela[0][j] < 0):
             return 1
     return 0
 
 def var_entra():
-    for j in range(1, variaveis + 1):
+    for j in range(1, n_variaveis + 1):
         if(Tabela[0][j] < Tabela[0][j - 1]):
             if(Tabela[0][j] != 0):
                 return Tabela[0][j], j
     return Tabela[0][j -1], j-1
 
 def var_sai(coluna):
-    razao_aux = 1000000
+    razao_aux = math.inf
     for i in range(1,linhas):
        if (Tabela[i][coluna] != 0): # evitar divisao por zero
             razao = Tabela[i][colunas - 1]/Tabela[i][coluna]
@@ -76,7 +85,6 @@ def nova_linha(linha, coef, linhapivo):
         Tabela[linha][j] = Tabela[linha][j] - (Tabela[linhapivo][j] * coef)
 
 def simplex():
-    print("Simplex iniciando\n")
     var_in, coluna_pivo = var_entra()
     print("Variavel que entra: ", var_in)
     linha_pivo = (var_sai(coluna_pivo))
@@ -88,9 +96,20 @@ def simplex():
         if i != linha_pivo:
             coef = Tabela[i][coluna_pivo]
             nova_linha(i, coef, linha_pivo)
-    print("Simplex acabando\n")
 
+i = 1
 while(busca_negativo()):
+    print("==========================================")
+    print("Iteração " + str(i) + "\n")
     simplex()
+    print(Tabela)
+    print("\n==========================================")
+    i = i + 1
 
-print(Tabela)
+resultado = {'Z': Tabela[0][-1]}
+
+for i in range(1, linhas):
+    resultado['X{}'.format(i)] = Tabela[i][-1]
+
+print(resultado)
+    
