@@ -10,36 +10,21 @@
         https://github.com/MUSoC/Visualization-of-popular-algorithms-in-Python/blob/master/Prim's/prims.py
             [acesso em 17 de junho de 2018]
 '''
-import numpy as np 
+import numpy as np
 import networkx as nx
 import sys
-import csv
+import math
 import matplotlib.pyplot as plt
-
-def createGraph(A):
-    '''
-    Function that receives a matrix that is not in the standart form and transform into
-    a graph
-    '''
-    maxval = int(A[len(A)-1][0])
-    M = np.zeros((maxval, maxval))
-
-    for i in range(0, len(A)):
-        row = int(A[i][0])
-        column = int(A[i][1])
-        value = A[i][2]
-        M[row-1][column-1] = value
-
-    return M
 
 def minDistance(dist, mstSet, V):
     '''
     Function that return the minimum edge weight node
     '''
-    min = sys.maxsize 
+    minimum = math.inf 
+    min_index = None
     for v in range(V):
-        if mstSet[v] == False and dist[v] < min:
-            min = dist[v]
+        if mstSet[v] == False and dist[v] < minimum:
+            minimum = dist[v]
             min_index = v
 
     return min_index
@@ -50,8 +35,8 @@ def plotGraph(G):
     '''
     pos = nx.spring_layout(G)
     nx.draw(G, pos, with_labels = True)
-    edge_labels = nx.get_edge_attributes(G,'length')
-    nx.draw_networkx_edge_labels(G, pos, edge_labels = edge_labels, font_size = 11) #prints weight on all the edges
+    edge_labels = nx.get_edge_attributes(G,'weight')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels = edge_labels, font_size = 11) # prints weight on all the edges
     
     return pos
 
@@ -61,17 +46,17 @@ def prim(G, start):
     '''
     V = G.number_of_nodes() - 1
     dist = []
-    parent = [None]*V
+    parent = [None] * V
     mst_set = []
 
     for i in range(V):
-        dist.append(sys.maxsize)
+        dist.append(math.inf)
         mst_set.append(False)
 
     dist[0] = 0
     parent[0] = -1
 
-    for count in range(V-1):
+    for count in range(0, V):
         u = minDistance(dist, mst_set, V)
         mst_set[u] = True
 
@@ -84,15 +69,16 @@ def prim(G, start):
     for X in range(V):
         if parent[X] != -1:
             if (parent[X], X) in G.edges():
-                nx.draw_networkx_edges(G, pos, edgelist = [(parent[X], X)], width = 2.5, alpha = 0.6, edge_color = 'r')
+                nx.draw_networkx_edges(G, pos, edgelist = [(parent[X], X)], width = 2.5, alpha = 0.6, edge_color = '#00FF00')
     
 if __name__ == "__main__":
     A = np.loadtxt(sys.argv[1])
+
     try:
         G = nx.from_numpy_matrix(A)
     except:
-        A = createGraph(A)
-        G = nx.from_numpy_matrix(A)
+        G = nx.read_weighted_edgelist(sys.argv[1])
+        G = nx.convert_node_labels_to_integers(G)
 
     pos = plotGraph(G)
     prim(G, pos)
