@@ -35,8 +35,8 @@ def plotGraph(G):
     '''
     pos = nx.spring_layout(G)
     nx.draw(G, pos, with_labels = True)
-    edge_labels = nx.get_edge_attributes(G,'weight')
-    nx.draw_networkx_edge_labels(G, pos, edge_labels = edge_labels, font_size = 11) # prints weight on all the edges
+    #edge_labels = nx.get_edge_attributes(G,'weight')
+    #nx.draw_networkx_edge_labels(G, pos, edge_labels = edge_labels, font_size = 5) # prints weight on all the edges
     
     return pos
 
