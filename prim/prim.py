@@ -23,7 +23,7 @@ def minDistance(dist, mstSet, V):
     minimum = math.inf 
     min_index = None
     for v in range(V):
-        if mstSet[v] == False and dist[v] < minimum:
+        if (mstSet[v] == False) and (dist[v] < minimum):
             minimum = dist[v]
             min_index = v
 
@@ -44,7 +44,7 @@ def prim(G, start):
     '''
     Function that receives a graph and a starting node, and returns a minimal spanning tree
     '''
-    V = G.number_of_nodes() - 1
+    V = G.number_of_nodes()
     dist = []
     parent = [None] * V
     mst_set = []
@@ -64,7 +64,7 @@ def prim(G, start):
             if (u, v) in G.edges():
                 if (mst_set[v] == False) and (G[u][v]['weight'] < dist[v]):
                     dist[v] = G[u][v]['weight']
-                    parent[v] = u    
+                    parent[v] = u   
 
     for X in range(V):
         if parent[X] != -1:
@@ -79,6 +79,8 @@ if __name__ == "__main__":
     except:
         G = nx.read_weighted_edgelist(sys.argv[1])
         G = nx.convert_node_labels_to_integers(G)
+
+    print (G)
 
     pos = plotGraph(G)
     prim(G, pos)
