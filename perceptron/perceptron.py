@@ -31,13 +31,13 @@ def perceptron(d, w, alpha, value):
     return w
 
 
-total = randint(5, 15)
-
+total = randint(5, 15) # quantidade de dados aleatoria
 x = np.array([[1]])
 
 # Criar vetor de pesos aleatorio
-w = np.array([[3, -4, 5]])
+w = np.array([[randint(-5,5), randint(-5,5), randint(-5,5)]])
 w.astype(int)
+print("Vetor de pesos inicial", w, '\n')
 
 alpha = 0.5
 
@@ -57,5 +57,13 @@ for i in range(total):
     d = -1
     w = perceptron(d, w, alpha, neg_value)
 
-#plt.plot([x1, x2], [y1, y2], color='black', linestyle='-', linewidth=2)
-plt.show()
+print("Vetor de pesos final", w, '\n')
+
+# coef1 = w[0,1]
+# coef2 = w[0,2]
+#
+# P1 = [0, coef1]
+# P2 = [-(coef1/coef2),0]
+#
+# plt.plot(P1,P2, 'k-')
+# plt.show()
