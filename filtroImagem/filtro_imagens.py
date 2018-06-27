@@ -8,7 +8,7 @@ from skimage import measure
 import wiener
 import mediana
 
-def PSNR(original, filtrada):
+def PSNR(original, filtrada):    
     MSE = 0
     for i in range(original.shape[0]):
         for j in range(original.shape[1]):
@@ -25,19 +25,20 @@ def save_image(original, ruidosa, filtrada, destino):
 
     fig1 = plt.subplot(121)
     fig1.axis('off')
-    fig1.set_title("PSNR={}".format(PSNR(original, ruidosa)))
+    fig1.set_title("PSNR={0:.2f} dB".format(PSNR(original, ruidosa)))
     io.imshow(ruidosa)
 
     fig2 = plt.subplot(122)
     fig2.axis('off')
-    fig2.set_title("PSNR={}".format(PSNR(original, filtrada)))
+    fig2.set_title("PSNR={0:.2f} dB".format(PSNR(original, filtrada)))
     io.imshow(skimage.img_as_float(filtrada))
     plt.savefig('{}.png'.format(destino), dpi=250)
     plt.close()
 
 imagens = ['barbara', 'boat', 'camera', 'lena', 'man']
 
-for imagem in imagens:
+for i, imagem in enumerate(imagens):
+    print('Filtrando imagem: {} ({}/{})'.format(imagem, i+1, len(imagens)))
     img_original = io.imread('imagens/{}.png'.format(imagem), plugin='matplotlib')
     img_gaussian = io.imread('imagens/{}_gaussian.png'.format(imagem), plugin='matplotlib')
     img_sal_pimenta = io.imread('imagens/{}_sal_e_pimenta.png'.format(imagem), plugin='matplotlib')

@@ -1,9 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from random import randint
-from sklearn import datasets
-
-
 
 # Classifica um dado realizando a multiplicacao pelo vetor de pesos e aplicacao da funcao de ativacao
 def classifica(dado, w):
@@ -35,7 +32,7 @@ def gera_dados(qtd):
     return dados
 
 def plot(dados_originais, classificacao, w):
-    fig, ax = plt.subplots(1, 1)
+    _, ax = plt.subplots(1, 1)
 
     for i, dado in enumerate(dados_originais):
         ax.scatter(dado[1], dado[2], c= 'blue' if dado[3]==1 else 'red')

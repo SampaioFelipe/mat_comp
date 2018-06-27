@@ -35,8 +35,8 @@ def plotGraph(G):
     '''
     pos = nx.spring_layout(G)
     nx.draw(G, pos, with_labels = True)
-    #edge_labels = nx.get_edge_attributes(G,'weight')
-    #nx.draw_networkx_edge_labels(G, pos, edge_labels = edge_labels, font_size = 5) # prints weight on all the edges
+    # edge_labels = nx.get_edge_attributes(G,'weight')
+    # nx.draw_networkx_edge_labels(G, pos, edge_labels = edge_labels, font_size = 8) # prints weight on all the edges
     
     return pos
 
@@ -44,33 +44,38 @@ def prim(G, start):
     '''
     Function that receives a graph and a starting node, and returns a minimal spanning tree
     '''
+    total_weight = 0
     V = G.number_of_nodes()
     dist = []
     parent = [None] * V
     mst_set = []
 
-    for i in range(V):
+    for _ in range(V):
         dist.append(math.inf)
         mst_set.append(False)
 
     dist[0] = 0
     parent[0] = -1
 
-    for count in range(0, V):
+    for _ in range(0, V):
         u = minDistance(dist, mst_set, V)
         mst_set[u] = True
+        total_weight = total_weight + dist[u]
 
         for v in range(V):
             if (u, v) in G.edges():
                 if (mst_set[v] == False) and (G[u][v]['weight'] < dist[v]):
-                    dist[v] = G[u][v]['weight']
+                    dist[v] = G[u][v]['weight'] # dijsktra -> G[u][v]['weight'] + dist[u]
                     parent[v] = u   
+
+    print("Total weight: ", total_weight)
 
     for X in range(V):
         if parent[X] != -1:
             if (parent[X], X) in G.edges():
                 nx.draw_networkx_edges(G, pos, edgelist = [(parent[X], X)], width = 2.5, alpha = 0.6, edge_color = '#00FF00')
-    
+
+
 if __name__ == "__main__":
     A = np.loadtxt(sys.argv[1])
 
@@ -79,8 +84,6 @@ if __name__ == "__main__":
     except:
         G = nx.read_weighted_edgelist(sys.argv[1])
         G = nx.convert_node_labels_to_integers(G)
-
-    print (G)
 
     pos = plotGraph(G)
     prim(G, pos)
