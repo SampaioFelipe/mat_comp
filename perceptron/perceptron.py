@@ -1,69 +1,89 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from random import randint
+from sklearn import datasets
 
 
-# Funcao de ativacao -1 ou 1
-def func_ativ(a, b):
-    mult = np.multiply(a, b)
-    y = 0
-    for i in mult:
-        for j in i:
-            y = j + y
-    if (y < 0):
-        return -1
-    else:
-        return 1
+
+# Classifica um dado realizando a multiplicacao pelo vetor de pesos e aplicacao da funcao de ativacao
+def classifica(dado, w):
+    v = np.dot(dado, w)
+    # Aplicação da funcao de ativacao degrau
+    return -1 if v < 0 else 1
+
+# Produz uma coleção de dados com [bias, x, y, classe]
+def gera_dados(qtd):
+    # Matrix de dados: qtd x 3 (bidimensional + bias + classe)
+    dados = np.zeros((2 * qtd, 4))
+    
+    # Classe positiva [primeiro quadrante]
+    for i in range(qtd):
+        dados[i, 0] = 1 # bias
+        x, y = np.random.randint(100, size=2) # valores de característica
+        dados[i, 1] = x
+        dados[i, 2] = y
+        dados[i, 3] = 1 # classe positiva
+    
+    # Classe negativa [terceiro quadrante]
+    for i in range(qtd, 2*qtd):
+        dados[i, 0] = 1 # bias
+        x, y = np.random.randint(-100, 0, size=2)
+        dados[i, 1] = x
+        dados[i, 2] = y
+        dados[i, 3] = -1 # classe positiva
+    
+    return dados
+
+def plot(dados_originais, classificacao, w):
+    fig, ax = plt.subplots(1, 1)
+
+    for i, dado in enumerate(dados_originais):
+        ax.scatter(dado[1], dado[2], c= 'blue' if dado[3]==1 else 'red')
+        ax.scatter(dado[1], dado[2], c= 'white', marker='x' if classificacao[i]==1 else '+')
+    
+    x0, x1 = ax.get_xlim()
+
+    y0 = -(x0*w[2] + w[0])/w[1]
+    y1 = -(x1*w[2] + w[0])/w[1]
+
+    plt.plot([x0, x1],[y0, y1], '-')
+    plt.show()
 
 
-# Funcao para atualizar vetor de pesos
-def update_weight(w, alpha, d, x):
-    w = w + alpha * (d - (func_ativ(w, x))) * x
+
+def perceptron(dados, classes, alpha):
+    w = np.zeros(3)
+    epoca = 0
+    erro = True # criterio de parada: para quando acertar todas as amostras
+
+    while erro:
+        print("Época ", epoca)
+        erro = False
+        
+        for i in range(len(dados)):
+            d = classes[i]
+            x = dados[i]
+
+            y = classifica(x, w)
+
+            if y != classes[i]:
+                w = w + alpha * (d - y) * x
+                erro = True
+        
+        epoca = epoca + 1
+    
     return w
 
+def teste(dados, w):
+    classificacao = []
 
-def perceptron(d, w, alpha, value):
-    classe = func_ativ(value, w)
-    w = update_weight(w, alpha, d, value)
-    dict = {'Vetor de dados': value, 'Classe esperada': d, 'Classe obtida': classe, 'Novo vetor de pesos': w}
-    print(dict)
-    print('\n')
-    return w
+    for dado in dados:
+        classificacao.append(classifica(dado, w))
+    
+    return classificacao
 
+dados = gera_dados(20)
+pesos = perceptron(dados[:,:3], dados[:, 3], 0.5)
+classificacao = teste(dados[:,:3], pesos)
 
-total = randint(5, 15) # quantidade de dados aleatoria
-x = np.array([[1]])
-
-# Criar vetor de pesos aleatorio
-w = np.array([[randint(-5,5), randint(-5,5), randint(-5,5)]])
-w.astype(int)
-print("Vetor de pesos inicial", w, '\n')
-
-alpha = 0.5
-
-for i in range(total):
-    # Positivos
-    pos_value = np.array([np.random.randint(100, size=2)])  # Criar dados aleatorios no primeiro quadrante
-    plt.scatter(pos_value[0, 0], pos_value[0, 1], c='blue')  # Plotar de azul
-    pos_value = np.concatenate((x, pos_value), axis=1)  # Inserir x0
-    d = 1
-    w = perceptron(d, w, alpha, pos_value)
-
-for i in range(total):
-    # Negativos
-    neg_value = np.array([np.random.randint(-100, 0, size=2)])  # Criar dados aleatorios no terceiro quadrante
-    plt.scatter(neg_value[0, 0], neg_value[0, 1], c='red')  # Plotar de vermelho
-    neg_value = np.concatenate((x, neg_value), axis=1)  # Inserir x0
-    d = -1
-    w = perceptron(d, w, alpha, neg_value)
-
-print("Vetor de pesos final", w, '\n')
-
-# coef1 = w[0,1]
-# coef2 = w[0,2]
-#
-# P1 = [0, coef1]
-# P2 = [-(coef1/coef2),0]
-#
-# plt.plot(P1,P2, 'k-')
-# plt.show()
+plot(dados, classificacao, pesos)
