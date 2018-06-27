@@ -125,8 +125,15 @@ if __name__ == "__main__":
     if (sys.argv[1] == "-p"):
         pos = plotGraph(G)
         prim(G, pos)
+
     elif (sys.argv[1] == "-d"):
         pos = plotGraph(G)
         dijkstra(G, pos)
+
+    else:
+        print ("Comando inválido!")
+        print ("python3 prim.py <-d | -p>  <nome_arquivo.txt>")
+        print ("-p        comando para o Algoritmo de Prim")
+        print ("-d        comando para o Algoritmo de Dijkstra")
     
     plt.show()
